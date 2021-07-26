@@ -11,6 +11,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
 @RestController
+@RequestMapping("/api/v1")
 public class UserController {
 
     
@@ -27,7 +28,7 @@ public class UserController {
 
     @PostMapping("/register")
     public ResponseEntity<ResponseDTO> register(@Valid @RequestBody SignUpRequestDTO user,
-                                                @RequestParam String role) {
+                                                @RequestParam(required = false) String role) {
         return userService.registerUser(user, role);
     }
 

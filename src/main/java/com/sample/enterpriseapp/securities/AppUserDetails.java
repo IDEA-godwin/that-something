@@ -18,7 +18,7 @@ public class AppUserDetails implements UserDetailsService {
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 
         User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new UsernameNotFoundException("Cook with username " + username + "' not found"));
+                .orElseThrow(() -> new UsernameNotFoundException("User with username " + username + "' not found"));
 
         return org.springframework.security.core.userdetails.User//
                 .withUsername(username)//

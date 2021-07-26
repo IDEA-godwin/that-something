@@ -1,6 +1,7 @@
 
 package com.sample.enterpriseapp.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -12,6 +13,7 @@ import java.util.Set;
 @NoArgsConstructor
 @Data
 @Entity
+@Table(name = "users")
 public class User {
 
     @Id
@@ -19,23 +21,20 @@ public class User {
     private Long id;
 
     @Column(name = "full_name", nullable = false)
-    @NotBlank(message = "full name can not be null")
     private String fullName;
 
     @Column(name = "username", nullable = false, unique = true)
-    @NotBlank(message = "username is required")
     private String username;
 
     @Column(name = "email", nullable = false)
-    @Email
-    @NotBlank(message = "Email is required")
     private String email;
 
     @Column(name = "password", nullable = false)
-    @NotBlank(message = "password is required")
+    @JsonIgnore
     private String password;
 
     @Column(name = "token")
+    @JsonIgnore
     private String token;
 
     @ElementCollection(fetch = FetchType.EAGER)

@@ -36,7 +36,7 @@ public class JwtTokenProvider {
     public Authentication getAuthentication(String token) {
         try {
             UserDetails userDetails = new AppUserDetails().loadUserByUsername(getUsername(token));
-            return new UsernamePasswordAuthenticationToken(userDetails, "", userDetails.getAuthorities());
+            return new UsernamePasswordAuthenticationToken(userDetails, userDetails.getPassword(), userDetails.getAuthorities());
         } catch (UsernameNotFoundException ex) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, ex.getMessage());
         }
