@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 import javax.persistence.*;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
+import java.util.HashSet;
 import java.util.Set;
 
 @NoArgsConstructor
@@ -36,6 +37,9 @@ public class User {
     @Column(name = "token")
     @JsonIgnore
     private String token;
+
+    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
+    private Cart cart = new Cart();
 
     @ElementCollection(fetch = FetchType.EAGER)
     Set<Roles> roles;

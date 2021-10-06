@@ -27,11 +27,11 @@ import java.util.Set;
 public class UserService {
 
     private final UserRepository repository;
-    private final AuthenticationManagerBuilder authManager;
+    private final AuthenticationManager authManager;
     private final JwtTokenProvider jwtTokenProvider;
     private final PasswordEncoder passwordEncoder;
 
-    public UserService(UserRepository repository, AuthenticationManagerBuilder authManager,
+    public UserService(UserRepository repository, AuthenticationManager authManager,
                        JwtTokenProvider jwtTokenProvider, PasswordEncoder passwordEncoder){
         this.repository = repository;
         this.authManager = authManager;
@@ -48,29 +48,13 @@ public class UserService {
 
     public ResponseEntity<ResponseDTO> loginUser(String username, String password) {
         try {
-            UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
-                    username,
-                    password
-            );
-            Authentication authentication = authManager.getObject().authenticate(authenticationToken);
-            SecurityContextHolder.getContext().setAuthentication(authentication);
+            authManager.authenticate(new UsernamePasswordAuthenticationToken(username, password));
             User user = repository.findByUsername(username).get();
-            String token = jwtTokenProvider.createToken(username, user.getRoles());
-            user.setToken(token);
+            user.setToken(jwtTokenProvider.createToken(username, user.getRoles()));
             return new ResponseEntity<>(new ResponseDTO("success", repository.save(user)), HttpStatus.OK);
         } catch (Exception ex) {
-            System.out.println(ex.getCause() + " " + ex.getMessage());
-            System.out.println(Arrays.toString(ex.getStackTrace()));
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(new ResponseDTO(ex.getMessage(), null), HttpStatus.BAD_REQUEST);
         }
-//        try {
-//            authManager.authenticate(new UsernamePasswordAuthenticationToken(username, password));
-//            User user = repository.findByUsername(username).get();
-//            user.setToken(jwtTokenProvider.createToken(username, user.getRoles()));
-//            return new ResponseEntity<>(new ResponseDTO("success", repository.save(user)), HttpStatus.OK);
-//        } catch (UsernameNotFoundException ex) {
-//            return new ResponseEntity<>(new ResponseDTO(ex.getMessage(), new HashSet<>()), HttpStatus.NOT_FOUND);
-//        }
     }
 
     public void logout(HttpServletRequest req) {

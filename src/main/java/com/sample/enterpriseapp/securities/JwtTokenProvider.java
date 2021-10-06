@@ -1,10 +1,9 @@
 package com.sample.enterpriseapp.securities;
 
 import com.sample.enterpriseapp.models.Roles;
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.JwtException;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
+import com.sample.enterpriseapp.repositories.UserRepository;
+import io.jsonwebtoken.*;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -19,6 +18,13 @@ import java.util.Set;
 
 @Component
 public class JwtTokenProvider {
+
+    @Autowired
+    UserRepository userRepository;
+
+    @Autowired
+    AppUserDetails appUserDetails;
+
 
     public String createToken(String username, Set<Roles> roles) {
         Claims claims = Jwts.claims().setSubject(username);
@@ -35,8 +41,8 @@ public class JwtTokenProvider {
 
     public Authentication getAuthentication(String token) {
         try {
-            UserDetails userDetails = new AppUserDetails().loadUserByUsername(getUsername(token));
-            return new UsernamePasswordAuthenticationToken(userDetails, userDetails.getPassword(), userDetails.getAuthorities());
+            UserDetails userDetails = appUserDetails.loadUserByUsername(getUsername(token));
+            return new UsernamePasswordAuthenticationToken(userDetails, "", userDetails.getAuthorities());
         } catch (UsernameNotFoundException ex) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, ex.getMessage());
         }
@@ -57,9 +63,10 @@ public class JwtTokenProvider {
     public boolean validateToken(String token) {
         try {
             Jwts.parser().setSigningKey("pass1223").parseClaimsJws(token);
-            return true;
+            String username = getUsername(token);
+            return !userRepository.findByUsername(username).get().getToken().isEmpty();
         } catch (JwtException | IllegalArgumentException e) {
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Expired or invalid JWT token");
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "User session has ended, try logging in");
         }
     }
 }

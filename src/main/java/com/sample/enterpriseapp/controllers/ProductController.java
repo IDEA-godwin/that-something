@@ -19,12 +19,6 @@ public class ProductController {
         this.productService = productService;
     }
 
-    @GetMapping
-    public ResponseEntity<ResponseDTO> getAllProducts() {
-        return new ResponseEntity<>(new ResponseDTO("success", productService.getAllProducts()),
-                                    HttpStatus.OK);
-    }
-
     @PostMapping
     @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<ResponseDTO> createProduct(@RequestBody Product product) {
